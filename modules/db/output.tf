@@ -17,3 +17,14 @@ output "engine" {
 output "name" {
   value = aws_rds_cluster.db.id
 }
+
+output "port" {
+  value = aws_rds_cluster.db.port
+}
+
+output "servers" {
+  value = [
+    aws_rds_cluster_instance.db_instances[0].identifier,
+    aws_rds_cluster_instance.db_instances[1].identifier
+  ]
+}

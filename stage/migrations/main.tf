@@ -11,7 +11,7 @@ data "terraform_remote_state" "source_dbs" {
   config = {
     bucket = "shem-tf-backend"
     encrypt = true
-    key = "dev/db/terraform.tfstate"
+    key = "db/terraform.tfstate"
     profile = "dev"
     region = "us-east-2"
   }
@@ -35,6 +35,8 @@ resource "aws_dms_endpoint" "source_endpoint" {
   endpoint_id = "${each.value.name}-dms-endpoint"
   endpoint_type = "source"
   engine_name = each.value.engine == "aurora-mysql" ? "aurora" : each.value.engine
+  server_name = element(each.value.servers, length(each.value.servers) - 1)
+  port = each.value.port
   database_name = each.value.database
   username = each.value.username
 
@@ -47,6 +49,8 @@ resource "aws_dms_endpoint" "destination_endpoint" {
   endpoint_id = "${each.value.name}-dms-endpoint"
   endpoint_type = "target"
   engine_name = each.value.engine == "aurora-mysql" ? "aurora" : each.value.engine
+  server_name = element(each.value.servers, length(each.value.servers) - 1)
+  port = each.value.port
   database_name = each.value.database
 
   username = each.value.username

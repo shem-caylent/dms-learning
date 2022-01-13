@@ -11,6 +11,8 @@ output "dbs" {
       engine = module.source_mysql_db.engine
       name = module.source_mysql_db.name
       endpoint_url = module.source_mysql_db.endpoint
+      servers = module.source_mysql_db.servers
+      port = module.source_mysql_db.port
     }
     postgres = {
       username = module.source_postgres_db.username
@@ -18,6 +20,8 @@ output "dbs" {
       engine = module.source_postgres_db.engine
       name = module.source_postgres_db.name
       endpoint_url = module.source_postgres_db.endpoint
+      servers = module.source_postgres_db.servers
+      port = module.source_postgres_db.port
     }
   }
 }
