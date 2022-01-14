@@ -1,6 +1,10 @@
 resource "aws_dms_replication_instance" "primary" {
-  replication_instance_class = "dms.t3.medium"
-  replication_instance_id = "shem-dms-test-replication"
+  for_each = {
+    postgres = {}
+    mysql = {}
+  }
+  replication_instance_class = "dms.t3.large"
+  replication_instance_id = "shem-dms-test-replication-${each.key}"
   engine_version = "3.4.6"
   availability_zone = "us-east-2b"
 }
@@ -58,7 +62,31 @@ resource "aws_dms_endpoint" "destination_endpoint" {
   password = data.terraform_remote_state.target_dbs.outputs.master_pass
 }
 
-# resource "aws_dms_replication_task" "task-1" {
-#   migration_type = "full-load-and-cdc"
-#   replication_task_id = "task-1"
-# }
+resource "aws_dms_replication_task" "postgres_tasks" {
+  for_each = var.tasks
+
+  migration_type = each.value.type
+  replication_instance_arn = aws_dms_replication_instance.primary[each.value.db].replication_instance_arn
+  replication_task_id = "shem-test-migration-${replace(each.key, "_", "-")}"
+
+  table_mappings = <<EOF
+{
+  "rules": [
+    {
+      "rule-type": "selection",
+      "rule-id": 1,
+      "rule-name": "${each.value.type}-${each.value.table}",
+      "object-locator": {
+        "schema-name": "dms_sample",
+        "table-name": "${each.value.table}"
+      },
+      "rule-action": "include"
+    }
+  ]
+}
+EOF
+
+  source_endpoint_arn = aws_dms_endpoint.source_endpoint[each.value.db].endpoint_arn
+  target_endpoint_arn = aws_dms_endpoint.destination_endpoint[each.value.db].endpoint_arn
+}
+

@@ -5,7 +5,7 @@ output "master_pass" {
 
 output "dbs" {
   value = {
-    myql = {
+    mysql = {
       username = module.source_mysql_db.username
       database = module.source_mysql_db.database
       engine = module.source_mysql_db.engine
