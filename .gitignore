@@ -2,3 +2,4 @@ backend.tf
 provider.tf
 .terraform/
 .terraform.lock.hcl
+.terragrunt-cache/
